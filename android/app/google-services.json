@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1047626791913",
+    "project_id": "humors-e2de0",
+    "storage_bucket": "humors-e2de0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1047626791913:android:74cf832f2e01d37adea978",
+        "android_client_info": {
+          "package_name": "com.clueo.humors"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1047626791913-haps3dml9pmu5ppjej2t4hi29rok9e0u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.clueo.humors",
+            "certificate_hash": "38e8beb1406594454b72fb88e17206ac281ee921"
+          }
+        },
+        {
+          "client_id": "1047626791913-6oforngfj6vuunf0bucbom85l36npu85.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqkFvdbmPQ90n8EEQgpUUsZN2vct255Jo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1047626791913-6oforngfj6vuunf0bucbom85l36npu85.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
