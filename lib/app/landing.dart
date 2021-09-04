@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:humors/app/sign_in/ui/sign_in.dart';
+import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +20,10 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             return SignInPage.create(context);
           }
-          return HomePage();
+          return Provider<Connector>(
+            create: (_) => MoodConnector(uid: user.uid),
+            child: HomePage()
+          );
         }
         return Scaffold(
           body: Center(
