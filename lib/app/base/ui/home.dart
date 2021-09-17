@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:humors/app/models/category.dart';
 import 'package:humors/common/alert_dialog.dart';
 import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
+
+import 'package:humors/services/models/api_user.dart';
 
 class HomePage extends StatelessWidget {
 
@@ -29,11 +30,6 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<void> _addCategory(BuildContext context) async {
-    final apiConnector = Provider.of<Connector>(context, listen: false);
-    await apiConnector.addCategory(Category('name', DateTime.now(), DateTime.now(), 1));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +48,35 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      body: _buildContents(context),
       floatingActionButton: FloatingActionButton (
         child: Icon(Icons.add),
-        onPressed: () =>_addCategory(context),
+        onPressed: () => {},
       ),
+    );
+  }
+
+  Widget _buildContents(BuildContext context) {
+    final apiConnector = Provider.of<Connector>(context, listen: false);
+
+    return StreamBuilder<APIUser?>(
+      stream: apiConnector.login(),
+      builder: (context, snapshot) {
+        if(snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          if (snapshot.hasData) {
+            APIUser? user = snapshot.data;
+            if ( user != null ) {
+              return Center(child: Text('User: ${user.username}'));
+            } else {
+              return Center(child: Text('Null API User'));
+            }
+          } else {
+            return Center(child: Text('No data returned from the API'));
+          }
+        }
+      },
     );
   }
 }
