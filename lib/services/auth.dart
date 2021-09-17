@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthBase {
   User? get currentUser;
@@ -32,6 +33,10 @@ class Auth implements AuthBase {
           idToken: googleAuth.idToken,
           accessToken: googleAuth.accessToken,
         ));
+
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setString('authToken', googleAuth.idToken!);
+
         return userCredential.user;
       } else {
         throw FirebaseAuthException(
