@@ -20,8 +20,9 @@ class LandingPage extends StatelessWidget {
           if (user == null) {
             return SignInPage.create(context);
           }
+
           return Provider<Connector>(
-            create: (_) => MoodConnector(uid: user.uid),
+            create: (_) => MoodConnector(),
             child: HomePage()
           );
         }
