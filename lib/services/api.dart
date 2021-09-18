@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:humors/app/models/category.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -11,23 +12,31 @@ import 'models/api_user.dart';
 
 abstract class Connector {
 
-  APIUser? get apiUser;
+  Stream<APIUser> get apiUser;
 
-  Stream<APIUser?> login();
+  Future<void> login();
 }
 
 class MoodConnector implements Connector {
 
   var client = http.Client();
 
-  APIUser? _apiUser;
+  final _userFetcher = PublishSubject<APIUser>();
 
-  @override
-  APIUser? get apiUser => _apiUser;
+  Stream<APIUser> get apiUser => _userFetcher.stream;
 
-  Stream<APIUser?> login() => Stream.fromFuture(authenticate());
+  dispose() {
+    _userFetcher.close();
+  }
 
-  Future<APIUser?> authenticate() async {
+  // APIUser? _apiUser;
+
+  // @override
+  // APIUser? get apiUser => _apiUser;
+
+  // Stream<APIUser> login() => Stream.fromFuture(authenticate());
+
+  Future<void> login() async {
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken') ?? null;
@@ -52,10 +61,13 @@ class MoodConnector implements Connector {
           refreshToken = jsonResponse['tokens']['refresh'];
           accessToken = jsonResponse['tokens']['access'];
         }
-        return APIUser(username, email, refreshToken, accessToken);
+        // return APIUser(username, email, refreshToken, accessToken);
+        _userFetcher.sink.add(APIUser(username, email, refreshToken, accessToken));
       } else {
-        throw new FormatException('Invalid response format');
+        _userFetcher.sink.addError(new FormatException('Invalid response format'));
       }
+    } else {
+      _userFetcher.sink.addError(new http.ClientException('Auth Token not available'));
     }
   }
 
