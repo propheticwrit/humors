@@ -22,7 +22,7 @@ class LandingPage extends StatelessWidget {
           }
 
           return Provider<Connector>(
-            create: (_) => MoodConnector(),
+            create: (context) => MoodConnector(),
             child: BasePage()
           );
         }
