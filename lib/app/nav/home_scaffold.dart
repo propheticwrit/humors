@@ -12,14 +12,14 @@ class HomeScaffold extends StatelessWidget {
   ValueChanged<String> onSelectTab;
 
   Map<String, IconData> tabLabels = {
-    'survey': Icons.list,
     'home': Icons.home,
+    'survey': Icons.list,
     'data': Icons.bar_chart_rounded
   };
 
   List<Widget> _tabsPages = [
-    Container(),
     HomePage(),
+    Container(),
     Container()
   ];
 
@@ -28,8 +28,8 @@ class HomeScaffold extends StatelessWidget {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         items: [
-          _buildItem('survey'),
           _buildItem('home'),
+          _buildItem('survey'),
           _buildItem('data'),
         ],
         onTap: (index) => onSelectTab(tabLabels.keys.elementAt(index)),
