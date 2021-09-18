@@ -59,10 +59,11 @@ class HomePage extends StatelessWidget {
   Widget _buildContents(BuildContext context) {
     final apiConnector = Provider.of<Connector>(context, listen: false);
 
-    return StreamBuilder<APIUser?>(
-      stream: apiConnector.login(),
+    return StreamBuilder<APIUser>(
+      stream: apiConnector.apiUser,
       builder: (context, snapshot) {
         if(snapshot.connectionState == ConnectionState.waiting) {
+          apiConnector.login();
           return Center(child: CircularProgressIndicator());
         } else {
           if (snapshot.hasData) {
@@ -70,9 +71,14 @@ class HomePage extends StatelessWidget {
             if ( user != null ) {
               return Center(child: Text('User: ${user.username}'));
             } else {
+              _signOut(context);
               return Center(child: Text('Null API User'));
             }
+          } else if (snapshot.hasError) {
+            _signOut(context);
+            return Center(child: Text('Snapshot error: ${snapshot.error}'));
           } else {
+            _signOut(context);
             return Center(child: Text('No data returned from the API'));
           }
         }
