@@ -5,7 +5,7 @@ import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
 
-import 'base/ui/home.dart';
+import 'base/ui/base.dart';
 
 class LandingPage extends StatelessWidget {
 
@@ -23,7 +23,7 @@ class LandingPage extends StatelessWidget {
 
           return Provider<Connector>(
             create: (_) => MoodConnector(),
-            child: HomePage()
+            child: BasePage()
           );
         }
         return Scaffold(
