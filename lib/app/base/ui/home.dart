@@ -49,10 +49,6 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: _buildContents(context),
-      floatingActionButton: FloatingActionButton (
-        child: Icon(Icons.add),
-        onPressed: () => {},
-      ),
     );
   }
 
