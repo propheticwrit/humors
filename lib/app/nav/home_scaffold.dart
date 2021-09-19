@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:humors/app/base/ui/category_list.dart';
 import 'package:humors/app/base/ui/home.dart';
 
 class HomeScaffold extends StatelessWidget {
@@ -19,7 +20,7 @@ class HomeScaffold extends StatelessWidget {
 
   List<Widget> _tabsPages = [
     HomePage(),
-    Container(),
+    CategoryListPage(),
     Container()
   ];
 
