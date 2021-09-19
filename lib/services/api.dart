@@ -13,8 +13,10 @@ import 'models/api_user.dart';
 abstract class Connector {
 
   Stream<APIUser> get apiUser;
+  Stream<List<Category>> get categories;
 
   Future<void> login();
+  Future<void> apiCategories();
 }
 
 class MoodConnector implements Connector {
@@ -22,11 +24,15 @@ class MoodConnector implements Connector {
   var client = http.Client();
 
   final _userFetcher = PublishSubject<APIUser>();
+  final _categoriesFetcher = PublishSubject<List<Category>>();
 
   Stream<APIUser> get apiUser => _userFetcher.stream;
 
+  Stream<List<Category>> get categories => _categoriesFetcher.stream;
+
   dispose() {
     _userFetcher.close();
+    _categoriesFetcher.close();
   }
 
   // APIUser? _apiUser;
@@ -62,6 +68,9 @@ class MoodConnector implements Connector {
           accessToken = jsonResponse['tokens']['access'];
         }
         // return APIUser(username, email, refreshToken, accessToken);
+
+        prefs.setString('accessToken', accessToken);
+
         _userFetcher.sink.add(APIUser(username, email, refreshToken, accessToken));
       } else {
         _userFetcher.sink.addError(new FormatException('Invalid response format'));
@@ -69,6 +78,32 @@ class MoodConnector implements Connector {
     } else {
       _userFetcher.sink.addError(new http.ClientException('Auth Token not available'));
     }
+  }
+
+  Future<void> apiCategories() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken') ?? null;
+
+    List<Category> categories = [];
+
+    var uri = Uri.http(APIPath.url, APIPath.user_list('category'));
+
+    final response = await http.get(uri, headers: {
+      'Authorization': 'Bearer ${accessToken}',
+    });
+    print('API category response: ${response.body}');
+    try {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+
+      for (var dict in jsonResponse) {
+        print('dictionary: ${dict}');
+        categories.add(Category.fromJson(dict));
+      }
+    } catch (Exception) {
+      _categoriesFetcher.sink.addError('Error parsing response');
+    }
+    _categoriesFetcher.sink.add(categories);
   }
 
   // TODO: Token deactivates after a 15 minute time period but may want to deactivate sooner
