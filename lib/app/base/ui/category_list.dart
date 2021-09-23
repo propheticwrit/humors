@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
+import 'package:humors/app/nav/menu.dart';
 import 'package:humors/services/api.dart';
 import 'package:provider/provider.dart';
 
@@ -26,10 +27,7 @@ class CategoryListPage extends StatelessWidget {
                   title: Text('Categories'),
                   centerTitle: true,
                   actions: <Widget>[
-                    IconButton(
-                        icon: Icon(Icons.edit, color: Colors.white),
-                        onPressed: () => {}
-                    ),
+                    Menu.buildMenu(context),
                   ],
                 ),
                 body: _buildContent(context, categories),
