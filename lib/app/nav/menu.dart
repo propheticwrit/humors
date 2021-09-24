@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:humors/app/configuration/ui/configuration.dart';
 import 'package:humors/app/settings/ui/settings.dart';
 import 'package:humors/common/alert_dialog.dart';
+import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
 
 class Menu {
 
-  static PopupMenuButton buildMenu(BuildContext context) {
+  final Connector connector;
+
+  const Menu({required this.connector});
+
+  PopupMenuButton buildMenu(BuildContext context) {
     return PopupMenuButton(
       icon: Icon(Icons.menu),  //don't specify icon if you want 3 dot menu
-      color: Colors.blue,
+      offset: Offset(0, 45),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       itemBuilder: (context) => [
-        _buildMenuItem(value: 0, text: 'settings'),
-        _buildMenuItem(value: 1, text: 'logout', icon: Icon(Icons.logout, color: Colors.red)),
+        _buildMenuItem(value: 0, text: 'Settings', icon: Icon(Icons.settings, color: Colors.black54)),
+        _buildMenuItem(value: 1, text: 'Configuration', icon: Icon(Icons.build, color: Colors.black54)),
+        _buildMenuItem(value: 2, text: 'Logout', icon: Icon(Icons.logout, color: Colors.black54)),
       ],
-      onSelected: (item) => _selectedItem(context, item),
+      onSelected: (item) => _selectedItem(context, connector, item),
     );
   }
 
-  static PopupMenuItem<int> _buildMenuItem({required int value, required String text, Icon? icon}) {
+  PopupMenuItem<int> _buildMenuItem({required int value, required String text, Icon? icon}) {
     return PopupMenuItem<int>(
         value: value,
         child: Row(
@@ -33,19 +41,22 @@ class Menu {
     );
   }
 
-  static void _selectedItem(BuildContext context, item) {
+  void _selectedItem(BuildContext context, Connector connector, item) {
     switch (item) {
       case 0:
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsPage()));
+        SettingsPage.show(context: context, connector: connector);
         break;
       case 1:
+        ConfigurationPage.show(context: context, connector: connector);
+        break;
+      case 2:
         print("User Logged out");
         _confirmSignOut(context);
         break;
     }
   }
 
-  static Future<void> _signOut(BuildContext context) async {
+  Future<void> _signOut(BuildContext context) async {
     try {
       final auth = Provider.of<AuthBase>(context, listen: false);
       await auth.signOut();
@@ -54,7 +65,7 @@ class Menu {
     }
   }
 
-  static Future<void> _confirmSignOut(BuildContext context) async {
+  Future<void> _confirmSignOut(BuildContext context) async {
     final didRequestSignOut = await showAlertDialog(
       context,
       title: 'Logout',
