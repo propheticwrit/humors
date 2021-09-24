@@ -9,20 +9,21 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final apiConnector = Provider.of<Connector>(context, listen: false);
+    Menu menu = Menu(connector: apiConnector);
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Page'),
+        centerTitle: true,
         actions: <Widget>[
-          Menu.buildMenu(context),
+          menu.buildMenu(context),
         ],
       ),
-      body: _buildContents(context),
+      body: _buildContents(context, apiConnector),
     );
   }
 
-  Widget _buildContents(BuildContext context) {
-    final apiConnector = Provider.of<Connector>(context, listen: false);
-
+  Widget _buildContents(BuildContext context, Connector apiConnector) {
     return StreamBuilder<APIUser>(
       stream: apiConnector.apiUser,
       builder: (context, snapshot) {

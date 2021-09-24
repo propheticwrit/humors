@@ -11,7 +11,7 @@ class CategoryListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final apiConnector = Provider.of<Connector>(context, listen: false);
-
+    Menu menu = Menu(connector: apiConnector);
     return StreamBuilder<List<Category>>(
         stream: apiConnector.categories,
         builder: (context, snapshot) {
@@ -27,7 +27,7 @@ class CategoryListPage extends StatelessWidget {
                   title: Text('Categories'),
                   centerTitle: true,
                   actions: <Widget>[
-                    Menu.buildMenu(context),
+                    menu.buildMenu(context),
                   ],
                 ),
                 body: _buildContent(context, categories),
