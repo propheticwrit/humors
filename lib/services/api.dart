@@ -14,9 +14,11 @@ abstract class Connector {
 
   Stream<APIUser> get apiUser;
   Stream<List<Category>> get categories;
+  Stream<Map<Category, List<Category>>> get baseCategories;
 
   Future<void> login();
   Future<void> apiCategories();
+  Future<void> apiBaseCategories();
 }
 
 class MoodConnector implements Connector {
@@ -25,14 +27,17 @@ class MoodConnector implements Connector {
 
   final _userFetcher = PublishSubject<APIUser>();
   final _categoriesFetcher = PublishSubject<List<Category>>();
+  final _baseCategoriesFetcher = PublishSubject<Map<Category, List<Category>>>();
 
   Stream<APIUser> get apiUser => _userFetcher.stream;
 
   Stream<List<Category>> get categories => _categoriesFetcher.stream;
+  Stream<Map<Category, List<Category>>> get baseCategories => _baseCategoriesFetcher.stream;
 
   dispose() {
     _userFetcher.close();
     _categoriesFetcher.close();
+    _baseCategoriesFetcher.close();
   }
 
   // APIUser? _apiUser;
@@ -92,18 +97,76 @@ class MoodConnector implements Connector {
     final response = await http.get(uri, headers: {
       'Authorization': 'Bearer ${accessToken}',
     });
-    print('API category response: ${response.body}');
+
     try {
       List<dynamic> jsonResponse = jsonDecode(response.body);
 
       for (var dict in jsonResponse) {
-        print('dictionary: ${dict}');
         categories.add(Category.fromJson(dict));
       }
     } catch (Exception) {
       _categoriesFetcher.sink.addError('Error parsing response');
     }
     _categoriesFetcher.sink.add(categories);
+  }
+
+  //[
+  //     {
+  //         "cat1": {
+  //             "id": 1,
+  //             "name": "cat1",
+  //             "created": "2021-09-10T20:28:50.344981Z",
+  //             "modified": "2021-09-10T20:28:50.344981Z",
+  //             "parent": null,
+  //             "user": [
+  //                 2
+  //             ]
+  //         },
+  //         "children": [
+  //             {
+  //                 "id": 7,
+  //                 "name": "cat1child1",
+  //                 "created": "2021-09-25T18:05:45.375233Z",
+  //                 "modified": "2021-09-25T18:05:45.375233Z",
+  //                 "parent": 1,
+  //                 "user": [
+  //                     2
+  //                 ]
+  //             }
+  //         ]
+  Future<void> apiBaseCategories() async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken') ?? null;
+
+    Map<Category, List<Category>> baseCategories = <Category, List<Category>>{};
+
+    var uri = Uri.http(APIPath.url, APIPath.user_list('category') + '/base');
+
+    final response = await http.get(uri, headers: {
+      'Authorization': 'Bearer ${accessToken}',
+    });
+
+    try {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+
+      for (var dict in jsonResponse) {
+        Category baseCategory = Category.fromJson(dict['parent']);
+        if ( baseCategory != null ) {
+          baseCategories[baseCategory] = <Category>[];
+
+          List<dynamic> childCategories = dict['children'];
+
+          for (var childDict in childCategories) {
+            baseCategories[baseCategory]!.add(
+                Category.fromJson(childDict));
+          }
+        }
+      }
+    } catch (Exception) {
+      _baseCategoriesFetcher.sink.addError('Error parsing response');
+    }
+    _baseCategoriesFetcher.sink.add(baseCategories);
   }
 
   // TODO: Token deactivates after a 15 minute time period but may want to deactivate sooner

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:humors/app/configuration/ui/configuration.dart';
-import 'package:humors/app/settings/ui/settings.dart';
+import '../pages/configuration/configuration.dart';
+import '../pages/settings/settings.dart';
 import 'package:humors/common/alert_dialog.dart';
 import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';

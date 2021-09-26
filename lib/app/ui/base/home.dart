@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:humors/app/nav/menu.dart';
+import '../nav/menu.dart';
 import 'package:humors/services/api.dart';
 import 'package:provider/provider.dart';
 

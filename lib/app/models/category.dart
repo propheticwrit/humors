@@ -1,10 +1,12 @@
 class Category {
+  int _id = 0;
   String _name = '';
   DateTime? _created = new DateTime.now();
   DateTime? _modified = new DateTime.now();
   int? _parent;
 
-  Category(String name, DateTime? created, DateTime? modified, int? parent) {
+  Category(int id, String name, DateTime? created, DateTime? modified, int? parent) {
+    _id = id;
     _name = name;
     if ( created != null ) {
       _created = created;
@@ -19,13 +21,10 @@ class Category {
 
   Category.fromJson(Map<String, dynamic> parsedJson) {
     _created = DateTime.parse(parsedJson['created']);
+    _id = parsedJson['id'];
     _name = parsedJson['name'];
     _modified = DateTime.parse(parsedJson['modified']);
-    if (parsedJson['parent'] != null) {
-      _parent = int.parse(parsedJson['parent']);
-    } else {
-      _parent = null;
-    }
+    _parent = parsedJson['parent'];
   }
 
   Map<String, dynamic> toJson() {
@@ -40,12 +39,14 @@ class Category {
     } else {
       jsonMap['modified'] = DateTime.now();
     }
+    jsonMap['id'] = _id;
     jsonMap['name'] = _name;
     jsonMap['parent'] = _parent;
     print(jsonMap.toString());
     return jsonMap;
   }
 
+  int get id => _id;
   String get name => _name;
   DateTime? get created => _created;
   DateTime? get modified => _modified;

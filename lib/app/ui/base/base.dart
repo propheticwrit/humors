@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:humors/app/nav/home_scaffold.dart';
+import '../nav/home_scaffold.dart';
 
 class BasePage extends StatefulWidget {
   @override

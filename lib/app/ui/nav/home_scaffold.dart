@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:humors/app/base/ui/category_list.dart';
-import 'package:humors/app/base/ui/home.dart';
+import 'package:humors/app/ui/base/home.dart';
+import '../base/category_list.dart';
 
 class HomeScaffold extends StatelessWidget {
   HomeScaffold({
