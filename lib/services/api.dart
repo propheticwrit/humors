@@ -40,13 +40,6 @@ class MoodConnector implements Connector {
     _baseCategoriesFetcher.close();
   }
 
-  // APIUser? _apiUser;
-
-  // @override
-  // APIUser? get apiUser => _apiUser;
-
-  // Stream<APIUser> login() => Stream.fromFuture(authenticate());
-
   Future<void> login() async {
 
     final prefs = await SharedPreferences.getInstance();
@@ -110,30 +103,6 @@ class MoodConnector implements Connector {
     _categoriesFetcher.sink.add(categories);
   }
 
-  //[
-  //     {
-  //         "cat1": {
-  //             "id": 1,
-  //             "name": "cat1",
-  //             "created": "2021-09-10T20:28:50.344981Z",
-  //             "modified": "2021-09-10T20:28:50.344981Z",
-  //             "parent": null,
-  //             "user": [
-  //                 2
-  //             ]
-  //         },
-  //         "children": [
-  //             {
-  //                 "id": 7,
-  //                 "name": "cat1child1",
-  //                 "created": "2021-09-25T18:05:45.375233Z",
-  //                 "modified": "2021-09-25T18:05:45.375233Z",
-  //                 "parent": 1,
-  //                 "user": [
-  //                     2
-  //                 ]
-  //             }
-  //         ]
   Future<void> apiBaseCategories() async {
 
     final prefs = await SharedPreferences.getInstance();

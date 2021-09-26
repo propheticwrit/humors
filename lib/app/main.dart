@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
 
-import 'app/landing.dart';
+import 'landing.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
