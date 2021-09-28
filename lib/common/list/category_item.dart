@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:humors/app/models/category.dart';
 
-class CategoryItem {
+class CategoryItem extends StatelessWidget {
 
-  static Widget childCategoryCard(Category category) {
+  final Category category;
+  final VoidCallback onTap;
+
+  const CategoryItem({required Category this.category, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Card(
@@ -26,12 +32,12 @@ class CategoryItem {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.keyboard_arrow_right),
             iconSize: 25.0,
             color: Colors.grey,
             onPressed: () {},
           ),
-          onTap: () {},
+          onTap: onTap,
         ),
       ),
     );

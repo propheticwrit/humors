@@ -21,10 +21,7 @@ class LandingPage extends StatelessWidget {
             return SignInPage.create(context);
           }
 
-          return Provider<Connector>(
-            create: (context) => MoodConnector(),
-            child: BasePage()
-          );
+          return BasePage();
         }
         return Scaffold(
           body: Center(

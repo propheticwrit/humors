@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:humors/app/models/category.dart';
 import 'package:http/http.dart' as http;
+import 'package:humors/app/models/survey.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -14,10 +15,12 @@ abstract class Connector {
 
   Stream<APIUser> get apiUser;
   Stream<List<Category>> get categories;
+  Stream<List<Survey>> get surveys;
   Stream<Map<Category, List<Category>>> get baseCategories;
 
   Future<void> login();
   Future<void> apiCategories();
+  Future<void> apiSurveys(Category category);
   Future<void> apiBaseCategories();
 }
 
@@ -27,16 +30,19 @@ class MoodConnector implements Connector {
 
   final _userFetcher = PublishSubject<APIUser>();
   final _categoriesFetcher = PublishSubject<List<Category>>();
+  final _surveysFetcher = PublishSubject<List<Survey>>();
   final _baseCategoriesFetcher = PublishSubject<Map<Category, List<Category>>>();
 
   Stream<APIUser> get apiUser => _userFetcher.stream;
 
   Stream<List<Category>> get categories => _categoriesFetcher.stream;
+  Stream<List<Survey>> get surveys => _surveysFetcher.stream;
   Stream<Map<Category, List<Category>>> get baseCategories => _baseCategoriesFetcher.stream;
 
   dispose() {
     _userFetcher.close();
     _categoriesFetcher.close();
+    _surveysFetcher.close();
     _baseCategoriesFetcher.close();
   }
 
@@ -76,6 +82,30 @@ class MoodConnector implements Connector {
     } else {
       _userFetcher.sink.addError(new http.ClientException('Auth Token not available'));
     }
+  }
+
+  Future<void> apiSurveys(Category category) async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken') ?? null;
+
+    var uri = Uri.http(APIPath.url, APIPath.user_list('survey?category=${category.id}'));
+
+    final response = await http.get(uri, headers: {
+      'Authorization': 'Bearer ${accessToken}',
+    });
+
+    List<Survey> surveys = [];
+    try {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+
+      for (var dict in jsonResponse) {
+        surveys.add(Survey.fromJson(dict));
+      }
+    } catch (Exception) {
+      _surveysFetcher.sink.addError('Error parsing response');
+    }
+    _surveysFetcher.sink.add(surveys);
   }
 
   Future<void> apiCategories() async {

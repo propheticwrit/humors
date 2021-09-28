@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
+import 'package:humors/app/ui/pages/configuration/survey.dart';
 import '../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
 import 'package:humors/services/api.dart';
@@ -10,7 +11,7 @@ import 'package:provider/provider.dart';
 class CategoryListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final apiConnector = Provider.of<Connector>(context, listen: false);
+    final apiConnector = MoodConnector();
     Menu menu = Menu(connector: apiConnector);
     return StreamBuilder<Map<Category, List<Category>>>(
       stream: apiConnector.baseCategories,
@@ -53,14 +54,14 @@ class CategoryListPage extends StatelessWidget {
             print('dismiss key: ' + item.toString());
           },
           child: Column(
-            children: _columnList(baseCategory, baseCategories[baseCategory]),
+            children: _columnList(context, baseCategory, baseCategories[baseCategory]),
           ),
         );
       },
     );
   }
 
-  List<Widget> _columnList(
+  List<Widget> _columnList(BuildContext context,
       Category baseCategory, List<Category>? childCategories) {
     List<Widget> columnList = <Widget>[];
 
@@ -80,7 +81,7 @@ class CategoryListPage extends StatelessWidget {
 
     if (childCategories != null) {
       for (Category childCategory in childCategories) {
-        columnList.add(CategoryItem.childCategoryCard(childCategory));
+        columnList.add(CategoryItem(category: childCategory, onTap: () => SurveyConfigurationPage.show(context: context, category: childCategory)));
       }
     }
     return columnList;

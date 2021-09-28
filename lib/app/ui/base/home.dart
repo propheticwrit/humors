@@ -9,7 +9,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apiConnector = Provider.of<Connector>(context, listen: false);
+    final apiConnector = MoodConnector();
     Menu menu = Menu(connector: apiConnector);
     return Scaffold(
       appBar: AppBar(
@@ -39,9 +39,11 @@ class HomePage extends StatelessWidget {
               return Center(child: Text('Null API User'));
             }
           } else if (snapshot.hasError) {
+            apiConnector.login();
             return Center(child: Text('Snapshot error: ${snapshot.error}'));
           } else {
-            return Center(child: Text('No data returned from the API'));
+            apiConnector.login();
+            return Center(child: CircularProgressIndicator());
           }
         }
       },
