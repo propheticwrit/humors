@@ -4,13 +4,12 @@ import '../../nav/menu.dart';
 import 'package:humors/services/api.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({required this.connector});
-  final Connector connector;
+  const SettingsPage();
 
-  static Future<void> show({required BuildContext context, required Connector connector}) async {
+  static Future<void> show({required BuildContext context}) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => SettingsPage(connector: connector),
+        builder: (context) => SettingsPage(),
         fullscreenDialog: true,
       ),
     );

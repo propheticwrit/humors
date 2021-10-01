@@ -8,10 +8,6 @@ import 'package:provider/provider.dart';
 
 class Menu {
 
-  final Connector connector;
-
-  const Menu({required this.connector});
-
   PopupMenuButton buildMenu(BuildContext context) {
     return PopupMenuButton(
       icon: Icon(Icons.menu),  //don't specify icon if you want 3 dot menu
@@ -22,7 +18,7 @@ class Menu {
         _buildMenuItem(value: 1, text: 'Configuration', icon: Icon(Icons.build, color: Colors.black54)),
         _buildMenuItem(value: 2, text: 'Logout', icon: Icon(Icons.logout, color: Colors.black54)),
       ],
-      onSelected: (item) => _selectedItem(context, connector, item),
+      onSelected: (item) => _selectedItem(context, item),
     );
   }
 
@@ -41,13 +37,13 @@ class Menu {
     );
   }
 
-  void _selectedItem(BuildContext context, Connector connector, item) {
+  void _selectedItem(BuildContext context, item) {
     switch (item) {
       case 0:
-        SettingsPage.show(context: context, connector: connector);
+        SettingsPage.show(context: context);
         break;
       case 1:
-        ConfigurationPage.show(context: context, connector: connector);
+        ConfigurationPage.show(context: context);
         break;
       case 2:
         print("User Logged out");

@@ -7,18 +7,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1047626791913:android:74cf832f2e01d37adea978",
+        "mobilesdk_app_id": "1:1047626791913:android:12ac2b44de607415dea978",
         "android_client_info": {
           "package_name": "com.clueo.humors"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1047626791913-haps3dml9pmu5ppjej2t4hi29rok9e0u.apps.googleusercontent.com",
+          "client_id": "1047626791913-bc68tkbv310nt77nfevnj409grqn43om.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.clueo.humors",
-            "certificate_hash": "38e8beb1406594454b72fb88e17206ac281ee921"
+            "certificate_hash": "ae8979dfe464206bf5e68b41af308b60bac3aa3d"
           }
         },
         {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:humors/app/models/category.dart';
 import 'package:http/http.dart' as http;
@@ -12,41 +13,17 @@ import 'auth.dart';
 import 'models/api_user.dart';
 
 abstract class Connector {
-
-  Stream<APIUser> get apiUser;
-  Stream<List<Category>> get categories;
-  Stream<List<Survey>> get surveys;
-  Stream<Map<Category, List<Category>>> get baseCategories;
-
-  Future<void> login();
-  Future<void> apiCategories();
-  Future<void> apiSurveys(Category category);
-  Future<void> apiBaseCategories();
+  Future<APIUser> login();
+  Future<List<Category>> apiCategories();
+  Future<List<Survey>> apiSurveys(Category category);
+  Future<Map<Category, List<Category>>> apiBaseCategories();
 }
 
 class MoodConnector implements Connector {
 
   var client = http.Client();
 
-  final _userFetcher = PublishSubject<APIUser>();
-  final _categoriesFetcher = PublishSubject<List<Category>>();
-  final _surveysFetcher = PublishSubject<List<Survey>>();
-  final _baseCategoriesFetcher = PublishSubject<Map<Category, List<Category>>>();
-
-  Stream<APIUser> get apiUser => _userFetcher.stream;
-
-  Stream<List<Category>> get categories => _categoriesFetcher.stream;
-  Stream<List<Survey>> get surveys => _surveysFetcher.stream;
-  Stream<Map<Category, List<Category>>> get baseCategories => _baseCategoriesFetcher.stream;
-
-  dispose() {
-    _userFetcher.close();
-    _categoriesFetcher.close();
-    _surveysFetcher.close();
-    _baseCategoriesFetcher.close();
-  }
-
-  Future<void> login() async {
+  Future<APIUser> login() async {
 
     final prefs = await SharedPreferences.getInstance();
     final authToken = prefs.getString('authToken') ?? null;
@@ -75,16 +52,16 @@ class MoodConnector implements Connector {
 
         prefs.setString('accessToken', accessToken);
 
-        _userFetcher.sink.add(APIUser(username, email, refreshToken, accessToken));
+        return APIUser(username, email, refreshToken, accessToken);
       } else {
-        _userFetcher.sink.addError(new FormatException('Invalid response format'));
+        throw new HttpException('Invalid response format');
       }
     } else {
-      _userFetcher.sink.addError(new http.ClientException('Auth Token not available'));
+      throw new HttpException('Auth Token not available');
     }
   }
 
-  Future<void> apiSurveys(Category category) async {
+  Future<List<Survey>> apiSurveys(Category category) async {
 
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('accessToken') ?? null;
@@ -103,12 +80,12 @@ class MoodConnector implements Connector {
         surveys.add(Survey.fromJson(dict));
       }
     } catch (Exception) {
-      _surveysFetcher.sink.addError('Error parsing response');
+      throw new HttpException("Could not parse the service response");
     }
-    _surveysFetcher.sink.add(surveys);
+    return surveys;
   }
 
-  Future<void> apiCategories() async {
+  Future<List<Category>> apiCategories() async {
 
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('accessToken') ?? null;
@@ -128,12 +105,12 @@ class MoodConnector implements Connector {
         categories.add(Category.fromJson(dict));
       }
     } catch (Exception) {
-      _categoriesFetcher.sink.addError('Error parsing response');
+      throw new HttpException('Could not parse categories');
     }
-    _categoriesFetcher.sink.add(categories);
+    return categories;
   }
 
-  Future<void> apiBaseCategories() async {
+  Future<Map<Category, List<Category>>> apiBaseCategories() async {
 
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('accessToken') ?? null;
@@ -163,9 +140,9 @@ class MoodConnector implements Connector {
         }
       }
     } catch (Exception) {
-      _baseCategoriesFetcher.sink.addError('Error parsing response');
+      throw new HttpException('Error parsing response');
     }
-    _baseCategoriesFetcher.sink.add(baseCategories);
+    return baseCategories;
   }
 
   // TODO: Token deactivates after a 15 minute time period but may want to deactivate sooner

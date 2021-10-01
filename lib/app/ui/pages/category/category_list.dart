@@ -3,21 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
 import 'package:humors/app/ui/pages/configuration/survey.dart';
-import '../nav/menu.dart';
+import '../../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
 import 'package:humors/services/api.dart';
 import 'package:provider/provider.dart';
 
+import 'category_list_bloc.dart';
+
 class CategoryListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final apiConnector = MoodConnector();
-    Menu menu = Menu(connector: apiConnector);
+    final categoryListBloc = CategoryListBloc();
+
+    Menu menu = Menu();
     return StreamBuilder<Map<Category, List<Category>>>(
-      stream: apiConnector.baseCategories,
+      stream: categoryListBloc.baseCategories,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          apiConnector.apiBaseCategories();
+          categoryListBloc.fetchBaseCategories();
           return Center(child: CircularProgressIndicator());
         } else {
           final Map<Category, List<Category>>? baseCategories = snapshot.data;

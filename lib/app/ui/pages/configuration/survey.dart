@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:humors/app/models/category.dart';
 import 'package:humors/app/models/survey.dart';
+import 'package:humors/app/ui/pages/configuration/survey_bloc.dart';
 import 'package:humors/services/api.dart';
 
 class SurveyConfigurationPage extends StatefulWidget {
@@ -25,13 +26,13 @@ class _SurveyConfigurationPageState extends State<SurveyConfigurationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final apiConnector = MoodConnector();
+    final surveyBloc = SurveyBloc(category: widget.category);
 
     return StreamBuilder<List<Survey>>(
-      stream: apiConnector.surveys,
+      stream: surveyBloc.surveys,
       builder: (context, snapshot) {
-        if(snapshot.connectionState == ConnectionState.waiting) {
-          apiConnector.apiSurveys(widget.category);
+        if( snapshot.connectionState == ConnectionState.waiting ) {
+          surveyBloc.fetchSurveys();
           return Center(child: CircularProgressIndicator());
         } else {
           final List<Survey>? surveys = snapshot.data;
