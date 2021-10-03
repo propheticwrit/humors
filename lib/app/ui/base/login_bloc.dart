@@ -8,7 +8,7 @@ import 'package:rxdart/rxdart.dart';
 
 class LoginBloc {
 
-  final _apiConnector = MoodConnector();
+  final _apiConnector = MoodAuthenticator();
   final _userFetcher = PublishSubject<APIUser>();
 
   Stream<APIUser> get apiUser => _userFetcher.stream;

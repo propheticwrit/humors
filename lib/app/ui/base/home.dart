@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import '../nav/menu.dart';
-import 'package:humors/services/api.dart';
-import 'package:provider/provider.dart';
 
 import 'package:humors/services/models/api_user.dart';
 
@@ -20,24 +18,18 @@ class HomePage extends StatelessWidget {
           loginBloc.login();
           return Center(child: CircularProgressIndicator());
         } else {
-          if ( snapshot.hasData ) {
-            APIUser? user = snapshot.data;
-            return Scaffold(
-              appBar: AppBar(
-                title: Text('Home Page'),
-                centerTitle: true,
-                actions: <Widget>[
-                  menu.buildMenu(context),
-                ],
-              ),
-              body: _buildContents(context, user),
-            );
-          } else if ( snapshot.hasError ) {
-            loginBloc.login();
-            return Center(child: CircularProgressIndicator());
-          }
+          APIUser? user = snapshot.data;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Home Page'),
+              centerTitle: true,
+              actions: <Widget>[
+                menu.buildMenu(context),
+              ],
+            ),
+            body: _buildContents(context, snapshot.hasData ? snapshot.data : null),
+          );
         }
-        return Center(child: CircularProgressIndicator());
       }
     );
   }
@@ -46,6 +38,7 @@ class HomePage extends StatelessWidget {
     if ( user != null ) {
       return Center(child: Text('User: ${user.username}'));
     } else {
+      loginBloc.login();
       return Center(child: Text('Null API User'));
     }
   }

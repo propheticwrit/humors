@@ -3,17 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
 import 'package:humors/app/ui/pages/configuration/survey.dart';
+import 'package:humors/common/form_dialog.dart';
+import 'package:humors/common/list/add_item.dart';
 import '../../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
 import 'package:humors/services/api.dart';
 import 'package:provider/provider.dart';
 
+import 'add_category.dart';
 import 'category_list_bloc.dart';
 
 class CategoryListPage extends StatelessWidget {
+
+  final categoryListBloc = CategoryListBloc();
+  
   @override
   Widget build(BuildContext context) {
-    final categoryListBloc = CategoryListBloc();
 
     Menu menu = Menu();
     return StreamBuilder<Map<Category, List<Category>>>(
@@ -83,6 +88,12 @@ class CategoryListPage extends StatelessWidget {
     ));
 
     if (childCategories != null) {
+      columnList.add(
+        AddItem(
+          label: 'Add Category',
+          onPressed: () => AddCategoryDialog.show(context, parentID: baseCategory.id),
+        ),
+      );
       for (Category childCategory in childCategories) {
         columnList.add(CategoryItem(category: childCategory, onTap: () => SurveyConfigurationPage.show(context: context, category: childCategory)));
       }
