@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Category {
   int? _id = 0;
   String _name = '';
@@ -24,12 +26,19 @@ class Category {
   Map<String, dynamic> toJson() {
     Map<String, dynamic> jsonMap = Map<String, dynamic>();
     if ( _id != null ) {
-      jsonMap['id'] = _id;
+      jsonMap['id'] = _id.toString();
     }
-    _created != null ? jsonMap['created'] = _created : jsonMap['created'] = DateTime.now();
-    _modified != null ? jsonMap['modified'] = _modified : jsonMap['modified'] = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+    if ( _created != null ) {
+      jsonMap['created'] = dateFormat.format(_created!);
+    }
+    if ( _modified != null ) {
+      jsonMap['modified'] = dateFormat.format(_modified!);
+    }
     jsonMap['name'] = _name;
-    jsonMap['parent'] = _parent;
+    if ( _parent != null ) {
+      jsonMap['parent'] = _parent.toString();
+    }
     print(jsonMap.toString());
     return jsonMap;
   }

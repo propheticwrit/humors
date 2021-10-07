@@ -16,7 +16,16 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         if( snapshot.connectionState == ConnectionState.waiting ) {
           loginBloc.login();
-          return Center(child: CircularProgressIndicator());
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Home Page'),
+              centerTitle: true,
+              actions: <Widget>[
+                menu.buildMenu(context),
+              ],
+            ),
+            body: Center(child: CircularProgressIndicator()),
+          );
         } else {
           APIUser? user = snapshot.data;
           return Scaffold(

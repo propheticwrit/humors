@@ -13,7 +13,9 @@ import 'models/api_user.dart';
 
 abstract class Connector {
 
-  Future<List<Category>> addCategory(Category category);
+  Future<Category> addCategory(Category category);
+  Future<Category> editCategory(Category category);
+  Future<bool> deleteCategory(Category category);
   Future<List<Survey>> addSurvey(Survey survey);
   Future<List<Question>> addQuestion(Question question);
 
@@ -31,8 +33,16 @@ class API {
     return await http.post(uri, headers: headers, body: body);
   }
 
+  Future<Response> _patch(Uri uri, Map<String, String>? headers, Object body) async {
+    return await http.patch(uri, headers: headers, body: body);
+  }
+
   Future<Response> _get(Uri uri, Map<String, String>? headers) async {
     return await http.get(uri, headers: headers);
+  }
+
+  Future<Response> _delete(Uri uri, Map<String, String>? headers) async {
+    return await http.delete(uri, headers: headers);
   }
 }
 
@@ -98,7 +108,7 @@ class MoodConnector extends API implements Connector {
 
   Future<List<Question>> addQuestion(Question question) async {
     String? accessToken = await _preference('accessToken');
-    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('question')), {'Authorization': 'Bearer ${accessToken}'}, question.toJson());
+    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('question')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(question.toJson()));
 
     return parseQuestions(response);
   }
@@ -126,7 +136,7 @@ class MoodConnector extends API implements Connector {
 
   Future<List<Survey>> addSurvey(Survey survey) async {
     String? accessToken = await _preference('accessToken');
-    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('question')), {'Authorization': 'Bearer ${accessToken}'}, survey.toJson());
+    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('survey')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(survey.toJson()));
 
     return parseSurveys(response);
   }
@@ -152,11 +162,22 @@ class MoodConnector extends API implements Connector {
     return categories;
   }
 
-  Future<List<Category>> addCategory(Category category) async {
+  Future<Category> addCategory(Category category) async {
     String? accessToken = await _preference('accessToken');
-    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('question')), {'Authorization': 'Bearer ${accessToken}'}, category.toJson());
+    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('category')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(category.toJson()));
+    return Category.fromJson(json.decode(response.body));
+  }
 
-    return parseCategories(response);
+  Future<Category> editCategory(Category category) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _patch(Uri.http(APIPath.url, APIPath.user_list('category') + '/${category.id}'), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(category.toJson()));
+    return Category.fromJson(json.decode(response.body));
+  }
+
+  Future<bool> deleteCategory(Category category) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _delete(Uri.http(APIPath.url, APIPath.user_list('category') + '/${category.id}'), {'Authorization': 'Bearer ${accessToken}'});
+    return response.statusCode == 204;
   }
 
   Future<List<Category>> apiCategories() async {
@@ -167,11 +188,7 @@ class MoodConnector extends API implements Connector {
     return parseCategories(response);
   }
 
-  Future<Map<Category, List<Category>>> apiBaseCategories() async {
-
-    String? accessToken = await _preference('accessToken');
-    Response response = await _get(Uri.http(APIPath.url, APIPath.user_list('category') + '/base'), {'Authorization': 'Bearer ${accessToken}'});
-
+  Map<Category, List<Category>> parseBaseCategories(Response response) {
     Map<Category, List<Category>> baseCategories = <Category, List<Category>>{};
 
     try {
@@ -190,10 +207,14 @@ class MoodConnector extends API implements Connector {
           }
         }
       }
-    } on Exception {
-      throw new HttpException('Error parsing response');
-    }
+    } on Exception {}
     return baseCategories;
+  }
+
+  Future<Map<Category, List<Category>>> apiBaseCategories() async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _get(Uri.http(APIPath.url, APIPath.user_list('category') + '/base'), {'Authorization': 'Bearer ${accessToken}'});
+    return parseBaseCategories(response);
   }
 
   // TODO: Token deactivates after a 15 minute time period but may want to deactivate sooner

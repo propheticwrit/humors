@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Survey {
   int? _id = 0;
   String _name = '';
@@ -37,8 +39,13 @@ class Survey {
     if ( _id != null ) {
       jsonMap['id'] = _id;
     }
-    _created != null ? jsonMap['created'] = _created : jsonMap['created'] = DateTime.now();
-    _modified != null ? jsonMap['modified'] = _modified : jsonMap['modified'] = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+    if ( _created != null ) {
+      jsonMap['created'] = dateFormat.format(_created!);
+    }
+    if ( _modified != null ) {
+      jsonMap['modified'] = dateFormat.format(_modified!);
+    }
     jsonMap['name'] = _name;
     jsonMap['category'] = _category;
     return jsonMap;
@@ -93,8 +100,13 @@ class Question {
     if ( _id != null ) {
       jsonMap['id'] = _id;
     }
-    _created != null ? jsonMap['created'] = _created : jsonMap['created'] = DateTime.now();
-    _modified != null ? jsonMap['modified'] = _modified : jsonMap['modified'] = DateTime.now();
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
+    if ( _created != null ) {
+      jsonMap['created'] = dateFormat.format(_created!);
+    }
+    if ( _modified != null ) {
+      jsonMap['modified'] = dateFormat.format(_modified!);
+    }
     jsonMap['name'] = _name;
     jsonMap['text'] = _text;
     jsonMap['survey'] = _survey;

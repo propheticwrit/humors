@@ -25,11 +25,22 @@ class CategoryListBloc {
 
   addCategory(Category category) async {
     try {
-      List<Category> categories = await _apiConnector.addCategory(category);
-      _categoriesFetcher.sink.add(categories);
+      await _apiConnector.addCategory(category);
     } on HttpException {
-      _categoriesFetcher.sink.addError('Error parsing categories');
+      _baseCategoriesFetcher.sink.addError('Error parsing categories');
     }
+  }
+
+  editCategory(Category category) async {
+    try {
+      await _apiConnector.editCategory(category);
+    } on HttpException {
+      _baseCategoriesFetcher.sink.addError('Error parsing categories');
+    }
+  }
+
+  deleteCategory(Category category) async {
+    await _apiConnector.deleteCategory(category);
   }
 
   fetchBaseCategories() async {
