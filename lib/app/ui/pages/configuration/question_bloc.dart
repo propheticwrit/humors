@@ -26,8 +26,7 @@ class QuestionBloc {
 
   addQuestion(Question question) async {
     try {
-      List<Question> questions = await _apiConnector.addQuestion(question);
-      _questionsFetcher.sink.add(questions);
+      await _apiConnector.addQuestion(question);
     } on HttpException {
       _questionsFetcher.sink.addError('Error parsing categories');
     }

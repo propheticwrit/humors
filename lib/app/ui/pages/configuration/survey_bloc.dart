@@ -27,8 +27,7 @@ class SurveyBloc {
 
   addSurvey(Survey survey) async {
     try {
-      List<Survey> surveys = await _apiConnector.addSurvey(survey);
-      _surveysFetcher.sink.add(surveys);
+      await _apiConnector.addSurvey(survey);
     } on HttpException {
       _surveysFetcher.sink.addError('Error parsing surveys');
     }

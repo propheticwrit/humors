@@ -16,8 +16,8 @@ abstract class Connector {
   Future<Category> addCategory(Category category);
   Future<Category> editCategory(Category category);
   Future<bool> deleteCategory(Category category);
-  Future<List<Survey>> addSurvey(Survey survey);
-  Future<List<Question>> addQuestion(Question question);
+  Future<Survey> addSurvey(Survey survey);
+  Future<Question> addQuestion(Question question);
 
 
   Future<List<Category>> apiCategories();
@@ -53,7 +53,7 @@ class MoodAuthenticator extends API {
 
     final prefs = await SharedPreferences.getInstance();
     String? authToken = prefs.getString('authToken');
-
+    print('${authToken}');
     if ( authToken != null ) {
       Response response = await _post(Uri.http(APIPath.url, APIPath.login()), {'Content-Type': 'application/json'}, "{\"auth_token\": \"${authToken}\"}");
 
@@ -106,11 +106,12 @@ class MoodConnector extends API implements Connector {
     return questions;
   }
 
-  Future<List<Question>> addQuestion(Question question) async {
+  Future<Question> addQuestion(Question question) async {
     String? accessToken = await _preference('accessToken');
+    print(jsonEncode(question.toJson()).toString());
     Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('question')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(question.toJson()));
 
-    return parseQuestions(response);
+    return Question.fromJson(jsonDecode(response.body));
   }
 
   Future<List<Question>> apiQuestions(Survey survey) async {
@@ -134,11 +135,11 @@ class MoodConnector extends API implements Connector {
     return surveys;
   }
 
-  Future<List<Survey>> addSurvey(Survey survey) async {
+  Future<Survey> addSurvey(Survey survey) async {
     String? accessToken = await _preference('accessToken');
     Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('survey')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(survey.toJson()));
 
-    return parseSurveys(response);
+    return Survey.fromJson(jsonDecode(response.body));
   }
 
   Future<List<Survey>> apiSurveys(Category category) async {

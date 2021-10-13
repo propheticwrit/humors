@@ -57,6 +57,13 @@ class Survey {
   DateTime? get modified => _modified;
   int get category => _category;
   List<Question>? get surveyQuestions => _questions;
+
+  set id(int? id) => _id = id;
+  set name(String name) => _name = name;
+  set created(DateTime? created) => _created = created;
+  set modified(DateTime? modified) => _modified = modified;
+  set category(int category) => _category = category;
+  set surveys(List<Question>? questions) => _questions = questions;
 }
 
 class Question {
@@ -120,6 +127,14 @@ class Question {
   DateTime? get modified => _modified;
   int get survey => _survey;
   List<Answer>? get questionAnswers => _answers;
+
+  set id(int? id) => _id = id;
+  set name(String name) => _name = name;
+  set text(String text) => _text = text;
+  set created(DateTime? created) => _created = created;
+  set modified(DateTime? modified) => _modified = modified;
+  set survey(int category) => _survey = survey;
+  set answers(List<Answer>? answers) => _answers = answers;
 }
 
 class Answer {

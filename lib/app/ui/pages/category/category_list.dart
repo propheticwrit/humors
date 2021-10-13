@@ -2,15 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
-import 'package:humors/app/ui/pages/configuration/survey.dart';
-import 'package:humors/common/form_dialog.dart';
 import 'package:humors/common/list/add_item.dart';
 import '../../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
-import 'package:humors/services/api.dart';
-import 'package:provider/provider.dart';
 
-import 'edit_category.dart';
+import 'edit.dart';
 import 'category_list_bloc.dart';
 
 class CategoryListPage extends StatelessWidget {
@@ -88,7 +84,6 @@ class CategoryListPage extends StatelessWidget {
       columnList.add(
         AddItem(
           label: 'Add Category',
-          // onPressed: () => AddCategoryPage.show(context, parentID: baseCategory.id != null ? baseCategory.id! : 1),
           onPressed: () => showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -155,29 +150,6 @@ class CategoryListPage extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => CategoryListPage()),
     );
-    // Category? base;
-    // Category? child;
-    //
-    // if (baseCategories != null) {
-    //   for (Category baseCategory in baseCategories!.keys) {
-    //     base = baseCategory;
-    //     List<Category>? categories = baseCategories![baseCategory];
-    //     if ( categories != null ) {
-    //       for (Category c in categories) {
-    //         if (c.id == category.id) {
-    //           child = c;
-    //           break;
-    //         }
-    //       }
-    //     }
-    //   }
-    //
-    //   if ( base != null && child != null ) {
-    //     if ( baseCategories![base] != null ) {
-    //       baseCategories![base]!.remove(child);
-    //     }
-    //   }
-    // }
   }
 
   Future<void> _submit(BuildContext context, int? parentID) async {
