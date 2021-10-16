@@ -1,11 +1,12 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:humors/app/models/category.dart';
 import 'package:humors/app/models/survey.dart';
 import 'package:humors/app/ui/pages/configuration/question_bloc.dart';
 import 'package:humors/app/ui/pages/configuration/survey_bloc.dart';
+import 'package:humors/common/form/drop_down.dart';
+import 'package:humors/common/form/text.dart';
 import 'package:humors/common/list/add_item.dart';
-import 'package:humors/common/list/survey_item.dart';
+import 'package:humors/common/list/configuration_item.dart';
 
 import 'category_list.dart';
 import 'category_list_bloc.dart';
@@ -34,27 +35,29 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   final _formKey = GlobalKey<FormState>();
 
   Category category;
-
-  String? _visibleSurvey;
-  String? _surveyName;
-  String? _questionName;
-  String? _questionType;
-
-  List<String> _surveyNames = [];
-  List<String> _questionNames = [];
   List<String> _questionTypes = ['Text', 'Toggle', 'Date', 'Switch'];
+
+  bool _showCategoryInput = false;
+  int _showSurveyInput = -1;
+  int _showSurveyQuestions = -1;
+
+  int _showSurveyQuestion = -1;
 
   _EditCategoryPageState({required this.category});
 
   @override
   void initState() {
     super.initState();
+  }
 
+  List<String> categorySurveyNames() {
+    List<String> surveyNames = [];
     if (category.surveys != null && category.surveys!.length > 0) {
       for (Survey survey in category.surveys!) {
-        _surveyNames.add(survey.name);
+        surveyNames.add(survey.name);
       }
     }
+    return surveyNames;
   }
 
   bool _validateAndSaveForm() {
@@ -76,45 +79,31 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
           name: category.name,
           parent: category.parent,
           created: category.created));
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => CategoryListPage()),
-      );
+      setState(() {
+        _showCategoryInput = false;
+      });
     }
   }
 
-  Future<void> _submitQuestion() async {
+  Future<void> _submitSurvey(Survey survey, int index) async {
     if (_validateAndSaveForm()) {
-      if (_questionName != null) {
-        Survey? selectedSurvey;
-        for (Survey survey in category.surveys!) {
-          if ( survey.name == _visibleSurvey ) {
-            selectedSurvey = survey;
-          }
-        }
-        if ( selectedSurvey != null ) {
-          QuestionBloc questionBloc = QuestionBloc(survey: selectedSurvey);
-          Question question = Question(
-              name: _questionName!, survey: selectedSurvey.id!, text: _questionName!);
-          questionBloc.addQuestion(question);
-          setState(() {
-            _questionNames.add(_questionName!);
-          });
-        }
-      }
+      SurveyBloc surveyBloc = SurveyBloc(category: category);
+      surveyBloc.editSurvey(survey);
+      setState(() {
+        _showSurveyInput = -1;
+        _showSurveyQuestion = -1;
+        _showSurveyQuestions = -1;
+      });
     }
   }
 
-  Future<void> _submitSurvey() async {
+  Future<void> _submitQuestion(Survey survey, Question question, int index) async {
     if (_validateAndSaveForm()) {
-      if (_surveyName != null) {
-        SurveyBloc surveyBloc = SurveyBloc(category: category);
-        Survey survey = Survey(name: _surveyName!, category: category.id!);
-        surveyBloc.addSurvey(survey);
-        setState(() {
-          _surveyNames.add(_surveyName!);
-        });
-      }
+      QuestionBloc questionBloc = QuestionBloc(survey: survey);
+      questionBloc.editQuestion(question);
+      setState(() {
+        _showSurveyQuestion = -1;
+      });
     }
   }
 
@@ -127,187 +116,177 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
         centerTitle: true,
       ),
       body: Container(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+        child: Padding(
+              padding: const EdgeInsets.all(15.0),
               child: Form(
                 key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: ListView(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
                   children: <Widget>[
-                    TextFormField(
-                      decoration: InputDecoration(labelText: 'Category Name'),
-                      initialValue: category.name,
-                      validator: (value) => value != null && value.isNotEmpty
-                          ? null
-                          : 'Name can\'t be empty',
-                      onSaved: (value) =>
-                          category.name = value != null ? value : '',
-                    ),
-                    _surveyNames.length > 0
-                        ? DropdownButtonFormField<String>(
-                            value: _visibleSurvey,
-                            items: _surveyNames.map<DropdownMenuItem<String>>(
-                              (String val) {
-                                return DropdownMenuItem(
-                                  child: Text(val),
-                                  value: val,
-                                );
-                              },
-                            ).toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                _visibleSurvey = val;
-                              });
-                            },
+                    _showCategoryInput ?
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: FormTextField(
+                              labelText: 'Category Name',
+                              initialValue: category.name,
+                              existingNames: [],
+                              onSavedName: (value) =>
+                              category.name = value != null ? value : '',
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.save),
+                            iconSize: 25.0,
+                            color: Colors.grey,
+                            onPressed: _submitCategory,
                           )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                                Flexible(
-                                  child: TextFormField(
-                                    decoration: InputDecoration(
-                                        labelText: 'Add a survey'),
-                                    initialValue: '',
-                                    validator: (value) =>
-                                        value != null && value.isNotEmpty && ! _surveyNames.contains(value)
-                                            ? null
-                                            : 'Name can\'t be empty',
-                                    onSaved: (value) => _surveyName =
-                                        value != null ? value : '',
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  iconSize: 20.0,
-                                  color: Colors.grey,
-                                  onPressed: _submitSurvey,
-                                )
-                              ]),
-                    if (_visibleSurvey != null)
-                      _questionList(_visibleSurvey!),
+                        ])
+                    : ConfigurationItem(
+                      name: category.name,
+                      onTap: () {  },
+                      leading: CircleAvatar(
+                        radius: 15,
+                        child: Text(
+                          'CT',
+                          style: TextStyle(color: Colors.white, fontSize: 11),
+                        ),
+                        backgroundColor: Colors.orange,
+                      ),
+                      trailingPressed:  () =>
+                          setState(() => _showCategoryInput = true),
+                    ),
+                    SizedBox(height: 40.0),
+                    _surveyList(),
                   ],
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FlatButton(
-                  child: Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-                FlatButton(
-                  child: Text('Submit'),
-                  onPressed: () => _submitCategory(),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _questionList(String survey_name) {
-    List<Question>? questions;
+  Widget _surveyList() {
+    List<Widget> surveyRows = <Widget>[];
 
     if (category.surveys != null) {
-      for (Survey survey in category.surveys!) {
-        if (survey.name == survey_name) {
-          questions = survey.surveyQuestions;
-        }
+      for (var index = 0; index < category.surveys!.length; index++) {
+        Survey survey = category.surveys![index];
+        surveyRows.add(
+            _showSurveyInput == index ?
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 2,
+                child: FormTextField(
+                  labelText: 'Survey Name',
+                  initialValue: survey.name,
+                  existingNames: [],
+                  onSavedName: (value) =>
+                  survey.name = value != null ? value : '',
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.save),
+                iconSize: 25.0,
+                color: Colors.grey,
+                onPressed: () => _submitSurvey(survey, index),
+              ),
+            ])
+                : ConfigurationItem(
+              name: survey.name,
+              onTap: () => setState(() => _showSurveyQuestions = index),
+              leading: CircleAvatar(
+                radius: 15,
+                child: Text(
+                  'SV',
+                  style: TextStyle(color: Colors.white, fontSize: 11),
+                ),
+                backgroundColor: Colors.blue,
+              ),
+              trailingPressed:  () =>
+                  setState(() => _showSurveyInput = index),
+            ),
+        );
+        surveyRows.add(SizedBox(height: 10));
+        if ( _showSurveyQuestions == index ) {
+          surveyRows.add(_questionList(survey));
+    }
       }
     }
+    surveyRows.add(
+        AddItem(
+            label: 'Add Survey',
+            onPressed: () => {}
+        )
+    );
+    return ListView(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        children: surveyRows
+    );
+  }
 
-    List<Widget> questionsList = [];
-    if (questions != null && questions.length > 0) {
-      for (Question question in questions) {
-        questionsList.add(
-          ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 5.0),
-            leading: Flexible(
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Question Name'),
-                initialValue: question.name,
-                validator: (value) => value != null && value.isNotEmpty && ! _questionNames.contains(value)
-                    ? null
-                    : 'Name can\'t be empty',
-                onSaved: (value) => question.name = value != null ? value : '',
+  Widget _questionList(Survey survey) {
+    List<Widget> questionRows = <Widget>[];
+
+    if ( survey.surveyQuestions != null ) {
+      for (var index = 0; index < survey.surveyQuestions!.length; index++) {
+        Question question = survey.surveyQuestions![index];
+        questionRows.add(
+          _showSurveyInput == index ?
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: FormTextField(
+                    labelText: 'Question Name',
+                    initialValue: question.name,
+                    existingNames: [],
+                    onSavedName: (value) =>
+                    question.name = value != null ? value : '',
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.save),
+                  iconSize: 25.0,
+                  color: Colors.grey,
+                  onPressed: () => _submitQuestion(survey, question, index),
+                ),
+              ])
+              : ConfigurationItem(
+            name: question.name,
+            onTap: () {},
+            leading: CircleAvatar(
+              radius: 15,
+              child: Text(
+                'QT',
+                style: TextStyle(color: Colors.white, fontSize: 11),
               ),
+              backgroundColor: Colors.blue,
             ),
-            title: Text(
-              question.name,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.keyboard_arrow_right),
-              iconSize: 20.0,
-              color: Colors.grey,
-              onPressed: () {},
-            ),
-            onTap: () => {},
+            trailingPressed: () =>
+                setState(() => _showSurveyQuestion = index),
           ),
         );
       }
-    } else {
-      questionsList.add(Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'Add a question'),
-                initialValue: '',
-                validator: (value) =>
-                value != null && value.isNotEmpty
-                    ? null
-                    : 'Name can\'t be empty',
-                onSaved: (value) => _questionName =
-                value != null ? value : '',
-              ),
-            ),
-            DropdownButtonFormField<String>(
-              value: _questionType,
-              items: _questionTypes.map<DropdownMenuItem<String>>(
-                    (String val) {
-                  return DropdownMenuItem(
-                    child: Text(val),
-                    value: val,
-                  );
-                },
-              ).toList(),
-              onChanged: (val) {
-                setState(() {
-                  _questionType = val;
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              iconSize: 20.0,
-              color: Colors.grey,
-              onPressed: _submitQuestion,
-            )
-          ]));
     }
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: questionsList,
-      ),
+    questionRows.add(
+        AddItem(
+            label: 'Add Question',
+            onPressed: () => {}
+        )
     );
-  }
-
-  List<Widget> _surveyList(List<Survey>? surveys) {
-    List<Widget> surveyList = [];
-    if (surveys != null) {
-      for (Survey survey in surveys) {
-        surveyList.add(SurveyItem(survey: survey, onTap: () => {}));
-      }
-    }
-    return surveyList;
+    print('question rows');
+    return ListView(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        children: questionRows
+    );
   }
 }

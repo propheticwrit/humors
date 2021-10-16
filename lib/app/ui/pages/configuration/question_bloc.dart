@@ -32,6 +32,14 @@ class QuestionBloc {
     }
   }
 
+  editQuestion(Question question) async {
+    try {
+      await _apiConnector.editQuestion(question);
+    } on HttpException {
+      _questionsFetcher.sink.addError('Error parsing categories');
+    }
+  }
+
   dispose() {
     _questionsFetcher.close();
   }

@@ -33,6 +33,14 @@ class SurveyBloc {
     }
   }
 
+  editSurvey(Survey survey) async {
+    try {
+      await _apiConnector.editSurvey(survey);
+    } on HttpException {
+      _surveysFetcher.sink.addError('Error parsing surveys');
+    }
+  }
+
   dispose() {
     _surveysFetcher.close();
   }

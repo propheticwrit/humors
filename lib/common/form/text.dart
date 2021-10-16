@@ -23,6 +23,7 @@ class FormTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
           border: new OutlineInputBorder(
             borderRadius: new BorderRadius.circular(10.0),
             borderSide: new BorderSide(),

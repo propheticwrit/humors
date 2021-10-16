@@ -6,7 +6,7 @@ import 'package:humors/common/list/add_item.dart';
 import '../../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
 
-import 'edit.dart';
+import 'edit_category.dart';
 import 'category_list_bloc.dart';
 
 class CategoryListPage extends StatelessWidget {

@@ -114,6 +114,12 @@ class MoodConnector extends API implements Connector {
     return Question.fromJson(jsonDecode(response.body));
   }
 
+  Future<Question> editQuestion(Question question) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _patch(Uri.http(APIPath.url, APIPath.user_list('question') + '/${question.id}'), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(question.toJson()));
+    return Question.fromJson(json.decode(response.body));
+  }
+
   Future<List<Question>> apiQuestions(Survey survey) async {
     String? accessToken = await _preference('accessToken');
     Response response = await _get(Uri.http(APIPath.url, APIPath.user_list('question?survey=${survey.id}')), {'Authorization': 'Bearer ${accessToken}'});
@@ -140,6 +146,12 @@ class MoodConnector extends API implements Connector {
     Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('survey')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(survey.toJson()));
 
     return Survey.fromJson(jsonDecode(response.body));
+  }
+
+  Future<Survey> editSurvey(Survey survey) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _patch(Uri.http(APIPath.url, APIPath.user_list('survey') + '/${survey.id}'), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(survey.toJson()));
+    return Survey.fromJson(json.decode(response.body));
   }
 
   Future<List<Survey>> apiSurveys(Category category) async {
