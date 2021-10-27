@@ -7,7 +7,9 @@ class BaseItem extends BaseCard {
   BaseItem({
     required String name,
     required Widget leading,
-    required VoidCallback onTap
+    required VoidCallback onTap,
+    required VoidCallback onPressed,
+    required VoidCallback onLongPress
   }) : super(
     child: ListTile(
       contentPadding:
@@ -21,9 +23,10 @@ class BaseItem extends BaseCard {
         icon: const Icon(Icons.keyboard_arrow_right),
         iconSize: 20.0,
         color: Colors.grey,
-        onPressed: () {},
+        onPressed: onPressed,
       ),
       onTap: onTap,
+      onLongPress: onLongPress,
     ),
   );
 }

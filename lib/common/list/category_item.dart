@@ -7,6 +7,8 @@ class CategoryItem extends BaseItem {
   CategoryItem({
     required Category category,
     required VoidCallback onTap,
+    required VoidCallback onPressed,
+    required VoidCallback onLongPress,
   }) : super(
           name: category.name,
           leading: CircleAvatar(
@@ -17,5 +19,7 @@ class CategoryItem extends BaseItem {
             backgroundColor: Colors.orange,
           ),
           onTap: onTap,
+          onPressed: onPressed,
+          onLongPress: onLongPress,
         );
 }

@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:humors/app/models/category.dart';
+import 'package:humors/app/ui/pages/configuration/configuration.dart';
 import 'package:humors/common/list/add_item.dart';
+import 'package:uuid/uuid.dart';
 import '../../nav/menu.dart';
 import 'package:humors/common/list/category_item.dart';
 
@@ -71,10 +73,17 @@ class CategoryListPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(width: 50),
-          Text(
-            baseCategory.name,
-            style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
+          SizedBox(width: 30),
+          ElevatedButton(
+            child: Text(baseCategory.name, style: TextStyle(color: Colors.black, fontSize: 18),),
+            style: ElevatedButton.styleFrom(
+                primary: Colors.orange,
+                onPrimary: Colors.orange,
+                onSurface: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20))
+            ),
+            onPressed: null,
           ),
         ],
       ),
@@ -115,7 +124,7 @@ class CategoryListPage extends StatelessWidget {
                 FlatButton(
                   child: Text('Submit'),
                   onPressed: () => _submit(
-                      context, baseCategory.id != null ? baseCategory.id : 1),
+                      context, baseCategory.id),
                 ),
               ],
             ),
@@ -123,10 +132,16 @@ class CategoryListPage extends StatelessWidget {
         ),
       );
       for (Category childCategory in childCategories) {
+        // TODO: on long press opens edit popup
         columnList.add(CategoryItem(
             category: childCategory,
-            onTap: () => EditCategoryPage.show(
-                context: context, category: childCategory)));
+            onTap: () => ConfigurationPage.show(
+                context: context, category: childCategory),
+            onPressed: () => ConfigurationPage.show(
+                context: context, category: childCategory),
+            onLongPress: () => {},
+        ),
+        );
       }
     }
     return columnList;
@@ -152,10 +167,11 @@ class CategoryListPage extends StatelessWidget {
     );
   }
 
-  Future<void> _submit(BuildContext context, int? parentID) async {
+  Future<void> _submit(BuildContext context, String parentID) async {
     if (_validateAndSaveForm()) {
+      var uuid = Uuid();
       CategoryListBloc categoryListBloc = CategoryListBloc();
-      categoryListBloc.addCategory(Category(name: _name, parent: parentID));
+      categoryListBloc.addCategory(Category(id: uuid.v4(), name: _name, parent: parentID));
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => CategoryListPage()),

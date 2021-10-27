@@ -71,7 +71,12 @@ class _SurveyConfigurationPageState extends State<SurveyConfigurationPage> {
         surveyNames.add(SurveyItem(
             survey: survey,
             onTap: () => QuestionConfigurationPage.show(
-                context: context, survey: survey)));
+                context: context, survey: survey),
+            onPressed: () => QuestionConfigurationPage.show(
+                context: context, survey: survey),
+            onLongPress: () => {},
+        ),
+        );
       }
     }
     return surveyNames;

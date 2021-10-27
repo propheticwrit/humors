@@ -64,7 +64,7 @@ class _QuestionConfigurationPageState extends State<QuestionConfigurationPage> {
     );
     if ( questions != null ) {
       for (Question question in questions) {
-        questionNames.add(QuestionItem(question: question, onTap: () => {}));
+        questionNames.add(QuestionItem(question: question, onTap: () => {}, onPressed: () => {}, onLongPress: () => {}));
       }
     }
     return questionNames;

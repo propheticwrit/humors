@@ -1,15 +1,17 @@
 import 'package:humors/app/models/survey.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/uuid_util.dart';
 
 class Category {
-  int? _id = 0;
+  String _id = '';
   String _name = '';
   DateTime? _created = new DateTime.now();
   DateTime? _modified = new DateTime.now();
-  int? _parent;
+  String? _parent;
   List<Survey>? _surveys = [];
 
-  Category({int? id, required String name, DateTime? created, DateTime? modified, int? parent, List<Survey>? surveys}) {
+  Category({required String id, required String name, DateTime? created, DateTime? modified, String? parent, List<Survey>? surveys}) {
     _id = id;
     _name = name;
     _created = created;
@@ -55,17 +57,17 @@ class Category {
     return jsonMap;
   }
 
-  int? get id => _id;
+  String get id => _id;
   String get name => _name;
   DateTime? get created => _created;
   DateTime? get modified => _modified;
-  int? get parent => _parent;
+  String? get parent => _parent;
   List<Survey>? get surveys => _surveys;
 
-  set id(int? id) => _id = id;
+  set id(String id) => _id = id;
   set name(String name) => _name = name;
   set created(DateTime? created) => _created = created;
   set modified(DateTime? modified) => _modified = modified;
-  set parent(int? parent) => _parent = parent;
+  set parent(String? parent) => _parent = parent;
   set surveys(List<Survey>? surveys) => _surveys = surveys;
 }

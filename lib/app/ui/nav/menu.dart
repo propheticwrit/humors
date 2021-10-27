@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../pages/configuration/configuration.dart';
 import '../pages/settings/settings.dart';
-import 'package:humors/common/alert_dialog.dart';
+import 'package:humors/common/dialog/alert_dialog.dart';
 import 'package:humors/services/api.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +43,8 @@ class Menu {
         SettingsPage.show(context: context);
         break;
       case 1:
-        ConfigurationPage.show(context: context);
+        SettingsPage.show(context: context);
+        // ConfigurationPage.show(context: context);
         break;
       case 2:
         print("User Logged out");

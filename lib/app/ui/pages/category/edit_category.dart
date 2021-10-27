@@ -7,8 +7,8 @@ import 'package:humors/common/form/drop_down.dart';
 import 'package:humors/common/form/text.dart';
 import 'package:humors/common/list/add_item.dart';
 import 'package:humors/common/list/configuration_item.dart';
+import 'package:uuid/uuid.dart';
 
-import 'category_list.dart';
 import 'category_list_bloc.dart';
 
 class EditCategoryPage extends StatefulWidget {
@@ -33,15 +33,20 @@ class EditCategoryPage extends StatefulWidget {
 
 class _EditCategoryPageState extends State<EditCategoryPage> {
   final _formKey = GlobalKey<FormState>();
+  final _popupFormKey = GlobalKey<FormState>();
 
   Category category;
   List<String> _questionTypes = ['Text', 'Toggle', 'Date', 'Switch'];
 
   bool _showCategoryInput = false;
-  int _showSurveyInput = -1;
-  int _showSurveyQuestions = -1;
+  String _showSurveyInput = '';
+  String _showSurveyQuestions = '';
 
   int _showSurveyQuestion = -1;
+
+  String _addedSurveyName = '';
+  String _addedQuestionName = '';
+  String _addedQuestionType = '';
 
   _EditCategoryPageState({required this.category});
 
@@ -50,7 +55,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     super.initState();
   }
 
-  List<String> categorySurveyNames() {
+  List<String> _categorySurveyNames() {
     List<String> surveyNames = [];
     if (category.surveys != null && category.surveys!.length > 0) {
       for (Survey survey in category.surveys!) {
@@ -62,6 +67,17 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
 
   bool _validateAndSaveForm() {
     final form = _formKey.currentState;
+    if (form != null) {
+      if (form.validate()) {
+        form.save();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool _validateAndSavePopupForm() {
+    final form = _popupFormKey.currentState;
     if (form != null) {
       if (form.validate()) {
         form.save();
@@ -85,19 +101,36 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     }
   }
 
-  Future<void> _submitSurvey(Survey survey, int index) async {
+  Future<void> _submitSurvey(Survey survey) async {
     if (_validateAndSaveForm()) {
       SurveyBloc surveyBloc = SurveyBloc(category: category);
       surveyBloc.editSurvey(survey);
       setState(() {
-        _showSurveyInput = -1;
+        _showSurveyInput = '';
         _showSurveyQuestion = -1;
-        _showSurveyQuestions = -1;
+        _showSurveyQuestions = '';
       });
     }
   }
 
-  Future<void> _submitQuestion(Survey survey, Question question, int index) async {
+  Future<void> _addSurvey(BuildContext context) async {
+    if (_validateAndSavePopupForm()) {
+      var uuid = Uuid();
+      Survey survey = Survey(id: uuid.v4(), name: _addedSurveyName, category: category.id!);
+      SurveyBloc surveyBloc = SurveyBloc(category: category);
+      surveyBloc.addSurvey(survey);
+      if ( category.surveys != null ) {
+        category.surveys!.add(survey);
+      } else {
+        category.surveys = [survey];
+      }
+      setState(() {
+        Navigator.of(context).pop(true);
+      });
+    }
+  }
+
+  Future<void> _submitQuestion(Survey survey, Question question) async {
     if (_validateAndSaveForm()) {
       QuestionBloc questionBloc = QuestionBloc(survey: survey);
       questionBloc.editQuestion(question);
@@ -173,10 +206,9 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     List<Widget> surveyRows = <Widget>[];
 
     if (category.surveys != null) {
-      for (var index = 0; index < category.surveys!.length; index++) {
-        Survey survey = category.surveys![index];
+      for (Survey survey in category.surveys!) {
         surveyRows.add(
-            _showSurveyInput == index ?
+            _showSurveyInput == survey.id ?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -185,7 +217,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 child: FormTextField(
                   labelText: 'Survey Name',
                   initialValue: survey.name,
-                  existingNames: [],
+                  existingNames: _categorySurveyNames(),
                   onSavedName: (value) =>
                   survey.name = value != null ? value : '',
                 ),
@@ -194,12 +226,12 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 icon: const Icon(Icons.save),
                 iconSize: 25.0,
                 color: Colors.grey,
-                onPressed: () => _submitSurvey(survey, index),
+                onPressed: () => _submitSurvey(survey),
               ),
             ])
                 : ConfigurationItem(
               name: survey.name,
-              onTap: () => setState(() => _showSurveyQuestions = index),
+              onTap: () => setState(() => _showSurveyQuestions = survey.id),
               leading: CircleAvatar(
                 radius: 15,
                 child: Text(
@@ -209,19 +241,59 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 backgroundColor: Colors.blue,
               ),
               trailingPressed:  () =>
-                  setState(() => _showSurveyInput = index),
+                  setState(() => _showSurveyInput = survey.id),
             ),
         );
         surveyRows.add(SizedBox(height: 10));
-        if ( _showSurveyQuestions == index ) {
+        if ( _showSurveyQuestions == survey.id ) {
           surveyRows.add(_questionList(survey));
     }
       }
     }
     surveyRows.add(
         AddItem(
-            label: 'Add Survey',
-            onPressed: () => {}
+          label: 'Add Survey',
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Add Survey'),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                  key: _popupFormKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextFormField(
+                        decoration: InputDecoration(labelText: 'Survey Name'),
+                        initialValue: '',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Name can\'t be empty';
+                          }
+                          if (_categorySurveyNames().contains(value)) {
+                            return 'Name already exists';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) => _addedSurveyName = value != null ? value : '',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                FlatButton(
+                  child: Text('Submit'),
+                  onPressed: () => _addSurvey(context),
+                ),
+              ],
+            ),
+          ),
         )
     );
     return ListView(
@@ -256,7 +328,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                   icon: const Icon(Icons.save),
                   iconSize: 25.0,
                   color: Colors.grey,
-                  onPressed: () => _submitQuestion(survey, question, index),
+                  onPressed: () => _submitQuestion(survey, question),
                 ),
               ])
               : ConfigurationItem(
@@ -268,7 +340,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
                 'QT',
                 style: TextStyle(color: Colors.white, fontSize: 11),
               ),
-              backgroundColor: Colors.blue,
+              backgroundColor: Colors.green,
             ),
             trailingPressed: () =>
                 setState(() => _showSurveyQuestion = index),

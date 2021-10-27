@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:humors/common/exception_alert_dialog.dart';
+import 'package:humors/common/dialog/exception_alert_dialog.dart';
 import 'package:humors/services/auth.dart';
 import 'package:provider/provider.dart';
 

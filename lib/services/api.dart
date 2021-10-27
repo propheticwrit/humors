@@ -92,6 +92,20 @@ class MoodConnector extends API implements Connector {
     return prefs.getString(key);
   }
 
+  List<Answer> parseAnswers(Response response) {
+    List<Answer> answers = [];
+
+    try {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+
+      for (var dict in jsonResponse) {
+        answers.add(Answer.fromJson(dict));
+      }
+    } on Exception {}
+
+    return answers;
+  }
+
   List<Question> parseQuestions(Response response) {
     List<Question> questions = [];
 
@@ -104,6 +118,27 @@ class MoodConnector extends API implements Connector {
     } on Exception {}
 
     return questions;
+  }
+
+  Future<Answer> addAnswer(Answer answer) async {
+    String? accessToken = await _preference('accessToken');
+    print(jsonEncode(answer.toJson()).toString());
+    Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('answer')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(answer.toJson()));
+
+    return Answer.fromJson(jsonDecode(response.body));
+  }
+
+  Future<Answer> editAnswer(Answer answer) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _patch(Uri.http(APIPath.url, APIPath.user_list('answer') + '/${answer.id}'), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(answer.toJson()));
+    return Answer.fromJson(json.decode(response.body));
+  }
+
+  Future<List<Answer>> apiAnswers(Question question) async {
+    String? accessToken = await _preference('accessToken');
+    Response response = await _get(Uri.http(APIPath.url, APIPath.user_list('answer?question=${question.id}')), {'Authorization': 'Bearer ${accessToken}'});
+
+    return parseAnswers(response);
   }
 
   Future<Question> addQuestion(Question question) async {
@@ -143,6 +178,7 @@ class MoodConnector extends API implements Connector {
 
   Future<Survey> addSurvey(Survey survey) async {
     String? accessToken = await _preference('accessToken');
+    var s = jsonEncode(survey.toJson());
     Response response = await _post(Uri.http(APIPath.url, APIPath.user_list('survey')), {'Authorization': 'Bearer ${accessToken}', 'Content-Type': 'application/json'}, jsonEncode(survey.toJson()));
 
     return Survey.fromJson(jsonDecode(response.body));

@@ -1,14 +1,14 @@
 import 'package:intl/intl.dart';
 
 class Survey {
-  int? _id = 0;
+  String _id = '';
   String _name = '';
   DateTime? _created = new DateTime.now();
   DateTime? _modified = new DateTime.now();
-  int _category = 0;
+  String _category = '';
   List<Question>? _questions = [];
 
-  Survey({int? id, required String name, DateTime? created, DateTime? modified, required int category, List<Question>? questions}) {
+  Survey({required String id, required String name, DateTime? created, DateTime? modified, required String category, List<Question>? questions}) {
     _id = id;
     _name = name;
     _created = created;
@@ -51,33 +51,34 @@ class Survey {
     return jsonMap;
   }
 
-  int? get id => _id;
+  String get id => _id;
   String get name => _name;
   DateTime? get created => _created;
   DateTime? get modified => _modified;
-  int get category => _category;
+  String get category => _category;
   List<Question>? get surveyQuestions => _questions;
 
-  set id(int? id) => _id = id;
+  set id(String id) => _id = id;
   set name(String name) => _name = name;
   set created(DateTime? created) => _created = created;
   set modified(DateTime? modified) => _modified = modified;
-  set category(int category) => _category = category;
-  set surveys(List<Question>? questions) => _questions = questions;
+  set category(String category) => _category = category;
+  set surveyQuestions(List<Question>? questions) => _questions = questions;
 }
 
 class Question {
-  int? _id = 0;
+  String _id = '';
   String _name = '';
   String _text = '';
   DateTime? _created = new DateTime.now();
   DateTime? _modified = new DateTime.now();
-  int _survey = 0;
+  String _survey = '';
   List<Answer>? _answers = [];
 
-  Question({int? id, required String name, required String text, DateTime? created, DateTime? modified, required int survey, List<Answer>? answers}) {
+  Question({required String id, required String name, required String text, DateTime? created, DateTime? modified, required String survey, List<Answer>? answers}) {
     _id = id;
     _name = name;
+    _text = text;
     _created = created;
     _modified = modified;
     _survey = survey;
@@ -120,32 +121,32 @@ class Question {
     return jsonMap;
   }
 
-  int? get id => _id;
+  String get id => _id;
   String get name => _name;
   String get text => _text;
   DateTime? get created => _created;
   DateTime? get modified => _modified;
-  int get survey => _survey;
-  List<Answer>? get questionAnswers => _answers;
+  String get survey => _survey;
+  List<Answer>? get answers => _answers;
 
-  set id(int? id) => _id = id;
+  set id(String id) => _id = id;
   set name(String name) => _name = name;
   set text(String text) => _text = text;
   set created(DateTime? created) => _created = created;
   set modified(DateTime? modified) => _modified = modified;
-  set survey(int category) => _survey = survey;
+  set survey(String survey) => _survey = survey;
   set answers(List<Answer>? answers) => _answers = answers;
 }
 
 class Answer {
-  int? _id = 0;
+  String _id = '';
   String? _label;
   String? _text;
   int _sequence = 0;
   String _style = '';
-  int _question = 0;
+  String _question = '';
 
-  Answer({int? id, String? label, String? text, required int sequence, required String style, required int question}) {
+  Answer({required String id, String? label, String? text, required int sequence, required String style, required String question}) {
     _id = id;
     _label = label;
     _text = text;
@@ -176,10 +177,17 @@ class Answer {
     return jsonMap;
   }
 
-  int? get id => _id;
+  String get id => _id;
   String? get label => _label;
   String? get text => _text;
   int get sequence => _sequence;
   String get style => _style;
-  int get question => _question;
+  String get question => _question;
+
+  set id(String id) => _id = id;
+  set label(String? name) => _label = label;
+  set text(String? text) => _text = text;
+  set sequence(int sequence) => _sequence = sequence;
+  set style(String style) => _style = style;
+  set question(String question) => _question = question;
 }
